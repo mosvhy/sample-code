@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Counter Time</title>
+</head>
+<body>
+  <span id="H"></span>:<span id="M"></span>:<span id="S"></span>,<span id="MS"></span>
+  <br>
+  <button id="reset">RESET</button>
+  <button id="stop">STOP</button>
+  <button id="start">START</button>
+  <script type="text/javascript">
+    var H=document.getElementById("H");
+    var M=document.getElementById("M");
+    var S=document.getElementById("S");
+    var MS=document.getElementById("MS");
+    var reset = document.getElementById('reset');
+    var stop = document.getElementById('stop');
+    var start = document.getElementById('start');
+    var started = false;
+
+
+    function drawTime(hours,mins,secs,milisecs,con=false){
+      if(con){
+        console.log(hours+':'+mins+':'+secs+','+milisecs);
+      }else{
+        H.innerHTML=hours;
+        M.innerHTML=mins;
+        S.innerHTML=secs;
+        MS.innerHTML=milisecs;
+      }
+    }
+
+    var endDate = new Date().getTime();
+    var _={H:0,M:0,S:0,MS:0};
+    function pad(n,l){
+      while(n.toString().length<l){
+        n='0'+n;
+      }
+      return n;
+    }
+
+    var inval;
+    var t=0,t2;
+    var b={
+      start:function(){
+        endDate = new Date().getTime();
+        if(!started){
+          b.reset();
+          started = true;
+        }
+        start.disabled=true;
+        stop.disabled=false;
+        inval = setInterval(function(){
+          let now = new Date().getTime();
+          t2 = now-endDate;
+          if (t2>=0){
+            let hours = pad((Math.floor((t+t2 % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),2);
+            let mins = pad((Math.floor((t+t2 % (1000 * 60 * 60)) / (1000 * 60))),2);
+            let secs = pad((Math.floor((t+t2 % (1000 * 60)) / 1000)),2);
+            let milisecs = pad((Math.floor((t+t2 % (1000 * 60))) - secs*1000),3);
+            drawTime(hours,mins,secs,milisecs);
+          }
+        },100);
+      },
+      stop:function(){
+        stop.disabled=true;
+        start.disabled=false;
+        t+=t2;
+        clearInterval(inval);
+      },
+      reset:function(){
+        b.stop();
+        t=0;
+        endDate = new Date().getTime();
+        drawTime("00","00","00","000");
+      },
+    }
+    start.addEventListener('click',b.start)
+    stop.addEventListener('click',b.stop)
+    reset.addEventListener('click',b.reset)
+    b.reset()
+  </script>
+</body>
+</html>
